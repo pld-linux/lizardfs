@@ -94,10 +94,10 @@ install -d $RPM_BUILD_ROOT%{_sysconfdir}
 mv $RPM_BUILD_ROOT%{_prefix}%{_sysconfdir}/mfs/ $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
 
 install -d $RPM_BUILD_ROOT/var/lib/%{name}
-cp $RPM_BUILD_ROOT/usr/var/lib/mfs/metadata.mfs.empty  $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
+cp $RPM_BUILD_ROOT%{_prefix}/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/master
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/chunkserver
-mv $RPM_BUILD_ROOT/usr/var/lib/mfs/metadata.mfs.empty  $RPM_BUILD_ROOT/var/lib/%{name}/master/metadata.mfs
+mv $RPM_BUILD_ROOT%{_prefix}/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT/var/lib/%{name}/master/metadata.mfs
 
 %clean
 rm -rf $RPM_BUILD_ROOT
