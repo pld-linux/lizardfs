@@ -14,15 +14,23 @@ Source0:	https://github.com/lizardfs/lizardfs/archive/v.%{version}.tar.gz
 # Source0-md5:	71766d18a5066506e54d952ab6056bd3
 Patch0:		%{name}-cmake_fix.patch
 URL:		https://github.com/lizardfs/lizardfs
-BuildRequires:	/usr/bin/a2x			#
+BuildRequires:	/usr/bin/a2x
 BuildRequires:	asciidoc
 BuildRequires:	boost-devel
 BuildRequires:	cmake >= 3.4.0
 BuildRequires:	docbook-dtd45-xml
 BuildRequires:	libfuse-devel
 BuildRequires:	pkgconfig
+BuildRequires:	rpmbuild(macros) >= 1.202
 BuildRequires:	zlib-devel
-# Requires:
+Requires(postun):	/usr/sbin/groupdel
+Requires(postun):	/usr/sbin/userdel
+Requires(pre):	/bin/id
+Requires(pre):	/usr/bin/getgid
+Requires(pre):	/usr/sbin/groupadd
+Requires(pre):	/usr/sbin/useradd
+Provides:	group(mfs)
+Provides:	user(mfs)
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -35,7 +43,6 @@ LizardFS is jest niezawodnym, skalowalnym i efektywnym rozproszonym
 systemem plików. Rozkłada dane na rózne fizyczne serwery, dająć
 użytkownikowi końcowemu widok pojedynczego systemu plików.
 
-
 %package master
 Summary:	Master/shadow metadata server
 Group:		Applications
@@ -43,7 +50,6 @@ Requires:	%{name} = %{version}-%{release}
 
 %description master
 Master/shadow metadata server
-
 
 %package chunkserver
 Summary:	Chunk server
@@ -53,7 +59,6 @@ Requires:	%{name} = %{version}-%{release}
 %description chunkserver
 Chunk server
 
-
 %package metalogger
 Summary:	Metalogger
 Group:		Applications
@@ -61,7 +66,6 @@ Requires:	%{name} = %{version}-%{release}
 
 %description metalogger
 Metalogger
-
 
 %package cgiserver
 Summary:	CGI server
@@ -107,20 +111,15 @@ rm -rf $RPM_BUILD_ROOT
 %groupadd -g 282 mfs
 %useradd -u 282 -d /var/lib/%{name} -g mfs -c "XXX User" %{name}
 
-%post
-
-%preun
-
 %postun
 if [ "$1" = "0" ]; then
-        %userremove mfs
-        %groupremove mfs
+	%userremove mfs
+	%groupremove mfs
 fi
 
 %files
 %defattr(644,root,root,755)
 %doc doc COPYING README UPGRADE NEWS INSTALL
-## %attr(755,root,root) %{_bindir}/*
 %dir %{_sysconfdir}/mfs
 %dir %attr(750,root,root) /var/lib/%{name}
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/globaliolimits.cfg.dist
@@ -186,5 +185,3 @@ fi
 %attr(755,root,root) %{_sbindir}/mfscgiserv
 %{_datadir}/mfscgi/
 # %dir %attr(750,mfs,mfs) /var/lib/%{name}/cgiserver
-
-
