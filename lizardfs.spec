@@ -128,8 +128,6 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfsgoals.cfg.dist
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfsmount.cfg.dist
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfstopology.cfg.dist
-%{_mandir}
-
 %attr(755,root,root) %{_bindir}/lizardfs-admin
 %attr(755,root,root) %{_bindir}/lizardfs-probe
 %attr(755,root,root) %{_bindir}/mfsappendchunks
@@ -157,6 +155,17 @@ fi
 %attr(755,root,root) %{_sbindir}/mfsmetadump
 %attr(755,root,root) %{_sbindir}/mfsmetarestore
 %attr(755,root,root) %{_sbindir}/mfsrestoremaster
+%{_mandir}/man1/mfs*.1*
+%{_mandir}/man5/globaliolimits.cfg.5*
+%{_mandir}/man5/iolimits.cfg.5*
+%{_mandir}/man5/mfs*.cfg.5*
+%{_mandir}/man7/lizardfs.7*
+%{_mandir}/man7/mfs.7
+%{_mandir}/man7/moosefs.7
+%{_mandir}/man8/lizardfs-admin.8*
+%{_mandir}/man8/lizardfs-cgiserver.8*
+%{_mandir}/man8/lizardfs-probe.8
+%{_mandir}/man8/mfs*.8*
 
 %files master
 %defattr(644,root,root,755)
