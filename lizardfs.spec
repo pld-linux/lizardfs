@@ -2,12 +2,14 @@
 # - Add daemon startup scripts
 #   https://github.com/moosefs/moosefs/blob/master/systemd/moosefs-master.service.in
 # - Verify if CGI server works, dependencies
+# - Fix x32 asm code inside crcutil-1.0
+# - Consider using external libcrcutil package
 
 Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
 Version:	3.9.4
-Release:	0.1
+Release:	0.2
 License:	GPL v3
 Group:		Applications
 Source0:	https://github.com/lizardfs/lizardfs/archive/v.%{version}.tar.gz
@@ -23,6 +25,9 @@ BuildRequires:	libfuse-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.202
 BuildRequires:	zlib-devel
+ExclusiveArch:	%{ix86} %{x8664}
+
+# Requires:
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
 Requires(pre):	/bin/id
@@ -82,9 +87,7 @@ CGI server
 %build
 install -d build
 cd build
-%cmake \
-	-DCMAKE_BUILD_TYPE=Release  \
-		../
+%cmake 	../
 %{__make}
 
 %install
@@ -109,7 +112,7 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 # NOTE: Using same user/group as for MooseFS from mfs.spec
 %groupadd -g 282 mfs
-%useradd -u 282 -d /var/lib/%{name} -g mfs -c "XXX User" %{name}
+%useradd -u 282 -d /var/lib/%{name} -g mfs -c "MooseFS/LizardFS Daemon" %{name}
 
 %postun
 if [ "$1" = "0" ]; then
