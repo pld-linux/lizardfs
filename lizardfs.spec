@@ -9,7 +9,7 @@ Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
 Version:	3.9.4
-Release:	0.2
+Release:	0.3
 License:	GPL v3
 Group:		Applications
 Source0:	https://github.com/lizardfs/lizardfs/archive/v.%{version}.tar.gz
@@ -87,7 +87,9 @@ CGI server
 %build
 install -d build
 cd build
-%cmake 	../
+%cmake 	../   \
+      -DBUILD_SHARED_LIBS=FALSE
+      
 %{__make}
 
 %install
