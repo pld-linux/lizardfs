@@ -9,7 +9,7 @@ Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
 Version:	3.9.4
-Release:	0.3
+Release:	0.4
 License:	GPL v3
 Group:		Applications
 Source0:	https://github.com/lizardfs/lizardfs/archive/v.%{version}.tar.gz
@@ -88,7 +88,9 @@ CGI server
 install -d build
 cd build
 %cmake 	../   \
-      -DBUILD_SHARED_LIBS=FALSE
+      -DBUILD_SHARED_LIBS=FALSE \
+      -DCMAKE_INSTALL_PREFIX:PATH=/  \
+      -DENABLE_DEBIAN_PATHS=TRUE
       
 %{__make}
 
@@ -100,21 +102,21 @@ cd build
 
 # %{_prefix}%{_sysconfdir}/mfs/ ?
 install -d $RPM_BUILD_ROOT%{_sysconfdir}
-mv $RPM_BUILD_ROOT%{_prefix}%{_sysconfdir}/mfs/ $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
+## mv $RPM_BUILD_ROOT%{_prefix}%{_sysconfdir}/mfs/ $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
 
 install -d $RPM_BUILD_ROOT/var/lib/%{name}
-cp $RPM_BUILD_ROOT%{_prefix}/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
+cp $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/master
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/chunkserver
-mv $RPM_BUILD_ROOT%{_prefix}/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT/var/lib/%{name}/master/metadata.mfs
+mv $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT/var/lib/%{name}/master/metadata.mfs
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-# NOTE: Using same user/group as for MooseFS from mfs.spec
+# NOTE: Using same user/group (mfs) as for MooseFS from mfs.spec
 %groupadd -g 282 mfs
-%useradd -u 282 -d /var/lib/%{name} -g mfs -c "MooseFS/LizardFS Daemon" %{name}
+%useradd -u 282 -d /var/lib/%{name} -g mfs -c "MooseFS/LizardFS Daemon" mfs
 
 %postun
 if [ "$1" = "0" ]; then
