@@ -1,8 +1,8 @@
 # TODO:
-# - Verify if CGI server works, dependencies
 # - Fix x32 asm code inside crcutil-1.0
 # - Consider using external libcrcutil package
 # - systemd service files to metalogger, cgiserver packages
+# - Fix cgiserver
 
 %bcond_without	systemd_service		
 
@@ -10,7 +10,7 @@ Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
 Version:	3.9.4
-Release:	0.6
+Release:	1
 License:	GPL v3
 Group:		Applications
 Source0:	https://github.com/lizardfs/lizardfs/archive/v.%{version}.tar.gz
@@ -30,15 +30,12 @@ BuildRequires:	libfuse-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.202
 BuildRequires:	zlib-devel
-
 %if %{with systemd_service}
 BuildRequires:	rpmbuild(macros) >= 1.647
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	systemd-units >= 0.38
 %endif
-
 ExclusiveArch:	%{ix86} %{x8664}
-
 # Requires:
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
@@ -68,7 +65,6 @@ Requires:	%{name} = %{version}-%{release}
 %description master
 Master/shadow metadata server
 
-
 %if %{with systemd_service}
 %post master
 %systemd_post %{name}-master.service
@@ -79,7 +75,6 @@ Master/shadow metadata server
 %postun master
 %systemd_reload
 %endif
-
 
 %package chunkserver
 Summary:	Chunk server
@@ -99,7 +94,6 @@ Chunk server
 %postun chunkserver
 %systemd_reload
 %endif
-
 
 %package metalogger
 Summary:	Metalogger
@@ -125,10 +119,9 @@ CGI server
 install -d build
 cd build
 %cmake 	../   \
-      -DBUILD_SHARED_LIBS=FALSE \
-      -DCMAKE_INSTALL_PREFIX:PATH=/  \
-      -DENABLE_DEBIAN_PATHS=TRUE
-      
+	  -DBUILD_SHARED_LIBS=FALSE \
+	  -DCMAKE_INSTALL_PREFIX:PATH=/  \
+	  -DENABLE_DEBIAN_PATHS=TRUE
 %{__make}
 
 %install
@@ -137,10 +130,7 @@ cd build
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-# %{_prefix}%{_sysconfdir}/mfs/ ?
 install -d $RPM_BUILD_ROOT%{_sysconfdir}
-## mv $RPM_BUILD_ROOT%{_prefix}%{_sysconfdir}/mfs/ $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
-
 install -d $RPM_BUILD_ROOT/var/lib/%{name}
 cp $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/master
@@ -149,14 +139,12 @@ mv $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT/var/lib/%{name
 
 %if %{with systemd_service}
 install -d $RPM_BUILD_ROOT%{systemdunitdir}
-install %{SOURCE1} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-master.service
-install %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-chunkserver.service
+cp -p %{SOURCE1} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-master.service
+cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-chunkserver.service
 %endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-
-
 
 %postun
 if [ "$1" = "0" ]; then
@@ -225,10 +213,6 @@ fi
 %{systemdunitdir}/%{name}-master.service
 %endif
 
-
-
-
-
 %files chunkserver
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/mfschunkserver
@@ -250,4 +234,3 @@ fi
 %attr(755,root,root) %{_sbindir}/lizardfs-cgiserver
 %attr(755,root,root) %{_sbindir}/mfscgiserv
 %{_datadir}/mfscgi/
-# %dir %attr(750,mfs,mfs) /var/lib/%{name}/cgiserver
