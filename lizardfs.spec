@@ -1,19 +1,24 @@
 # TODO:
-# - Add daemon startup scripts
-#   https://github.com/moosefs/moosefs/blob/master/systemd/moosefs-master.service.in
 # - Verify if CGI server works, dependencies
 # - Fix x32 asm code inside crcutil-1.0
 # - Consider using external libcrcutil package
+# - systemd service files to metalogger, cgiserver packages
+
+%bcond_without	systemd_service		
 
 Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
 Version:	3.9.4
-Release:	0.4
+Release:	0.6
 License:	GPL v3
 Group:		Applications
 Source0:	https://github.com/lizardfs/lizardfs/archive/v.%{version}.tar.gz
 # Source0-md5:	71766d18a5066506e54d952ab6056bd3
+%if %{with systemd_service}
+Source1:	%{name}-master.service
+Source2:	%{name}-chunkserver.service
+%endif
 Patch0:		%{name}-cmake_fix.patch
 URL:		https://github.com/lizardfs/lizardfs
 BuildRequires:	/usr/bin/a2x
@@ -25,6 +30,13 @@ BuildRequires:	libfuse-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.202
 BuildRequires:	zlib-devel
+
+%if %{with systemd_service}
+BuildRequires:	rpmbuild(macros) >= 1.647
+Requires(post,preun,postun):	systemd-units >= 38
+Requires:	systemd-units >= 0.38
+%endif
+
 ExclusiveArch:	%{ix86} %{x8664}
 
 # Requires:
@@ -56,6 +68,19 @@ Requires:	%{name} = %{version}-%{release}
 %description master
 Master/shadow metadata server
 
+
+%if %{with systemd_service}
+%post master
+%systemd_post %{name}-master.service
+
+%preun master
+%systemd_preun %{name}-master.service
+
+%postun master
+%systemd_reload
+%endif
+
+
 %package chunkserver
 Summary:	Chunk server
 Group:		Applications
@@ -63,6 +88,18 @@ Requires:	%{name} = %{version}-%{release}
 
 %description chunkserver
 Chunk server
+
+%if %{with systemd_service}
+%post chunkserver
+%systemd_post %{name}-chunkserver.service
+
+%preun chunkserver
+%systemd_preun %{name}-chunkserver.service
+
+%postun chunkserver
+%systemd_reload
+%endif
+
 
 %package metalogger
 Summary:	Metalogger
@@ -110,13 +147,16 @@ install -d $RPM_BUILD_ROOT/var/lib/%{name}/master
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/chunkserver
 mv $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT/var/lib/%{name}/master/metadata.mfs
 
+%if %{with systemd_service}
+install -d $RPM_BUILD_ROOT%{systemdunitdir}
+install %{SOURCE1} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-master.service
+install %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-chunkserver.service
+%endif
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre
-# NOTE: Using same user/group (mfs) as for MooseFS from mfs.spec
-%groupadd -g 282 mfs
-%useradd -u 282 -d /var/lib/%{name} -g mfs -c "MooseFS/LizardFS Daemon" mfs
+
 
 %postun
 if [ "$1" = "0" ]; then
@@ -181,6 +221,13 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/metadata.mfs.empty
 %dir %attr(750,mfs,mfs) /var/lib/%{name}/master
 %config(noreplace) %verify(not md5 mtime size) /var/lib/%{name}/master/metadata.mfs
+%if %{with systemd_service}
+%{systemdunitdir}/%{name}-master.service
+%endif
+
+
+
+
 
 %files chunkserver
 %defattr(644,root,root,755)
@@ -188,6 +235,9 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfschunkserver.cfg.dist
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfshdd.cfg.dist
 %dir %attr(750,mfs,mfs) /var/lib/%{name}/chunkserver
+%if %{with systemd_service}
+%{systemdunitdir}/%{name}-chunkserver.service
+%endif
 
 %files metalogger
 %defattr(644,root,root,755)
