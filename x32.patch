@@ -1,0 +1,65 @@
+diff -ur lizardfs-v.3.9.4.orig/external/crcutil-1.0/code/crc32c_sse4.h lizardfs-v.3.9.4/external/crcutil-1.0/code/crc32c_sse4.h
+--- lizardfs-v.3.9.4.orig/external/crcutil-1.0/code/crc32c_sse4.h	2015-12-09 10:32:07.000000000 +0100
++++ lizardfs-v.3.9.4/external/crcutil-1.0/code/crc32c_sse4.h	2016-07-02 16:26:42.667508219 +0200
+@@ -26,7 +26,7 @@
+ 
+ #if CRCUTIL_USE_MM_CRC32
+ 
+-#if HAVE_I386
++#if HAVE_I386 || defined(__ILP32__)
+ #define CRC_UPDATE_WORD(crc, value) (crc = _mm_crc32_u32(crc, (value)))
+ #else
+ #define CRC_UPDATE_WORD(crc, value) (crc = _mm_crc32_u64(crc, (value)))
+Only in lizardfs-v.3.9.4/external/crcutil-1.0/code: crc32c_sse4.h~
+diff -ur lizardfs-v.3.9.4.orig/external/crcutil-1.0/code/crc32c_sse4_intrin.h lizardfs-v.3.9.4/external/crcutil-1.0/code/crc32c_sse4_intrin.h
+--- lizardfs-v.3.9.4.orig/external/crcutil-1.0/code/crc32c_sse4_intrin.h	2015-12-09 10:32:07.000000000 +0100
++++ lizardfs-v.3.9.4/external/crcutil-1.0/code/crc32c_sse4_intrin.h	2016-07-02 16:26:58.961054828 +0200
+@@ -55,7 +55,7 @@
+ _mm_crc32_u8(unsigned int __C, unsigned char __V) {
+   return __builtin_ia32_crc32qi(__C, __V);
+ }
+-#ifdef __x86_64__
++#if defined(__x86_64__) && !defined(__ILP32__)
+ extern __inline unsigned long long __attribute__((
+     __gnu_inline__, __always_inline__, __artificial__))
+ _mm_crc32_u64(unsigned long long __C, unsigned long long __V) {
+Only in lizardfs-v.3.9.4/external/crcutil-1.0/code: crc32c_sse4_intrin.h~
+diff -ur lizardfs-v.3.9.4.orig/external/crcutil-1.0/code/generic_crc.h lizardfs-v.3.9.4/external/crcutil-1.0/code/generic_crc.h
+--- lizardfs-v.3.9.4.orig/external/crcutil-1.0/code/generic_crc.h	2015-12-09 10:32:07.000000000 +0100
++++ lizardfs-v.3.9.4/external/crcutil-1.0/code/generic_crc.h	2016-07-02 16:27:18.967983085 +0200
+@@ -188,7 +188,7 @@
+ 
+   // Default CRC implementation
+   Crc CrcDefault(const void *data, size_t bytes, const Crc &start) const {
+-#if HAVE_AMD64 || HAVE_I386
++#if (defined(HAVE_AMD64) || defined(HAVE_I386)) && !defined(__ILP32__)
+     return CrcMultiword(data, bytes, start);
+ #else
+     // Very few CPUs have multiple ALUs and speculative execution
+Only in lizardfs-v.3.9.4/external/crcutil-1.0/code: generic_crc.h~
+diff -ur lizardfs-v.3.9.4.orig/external/crcutil-1.0/code/multiword_128_64_gcc_amd64_sse2.cc lizardfs-v.3.9.4/external/crcutil-1.0/code/multiword_128_64_gcc_amd64_sse2.cc
+--- lizardfs-v.3.9.4.orig/external/crcutil-1.0/code/multiword_128_64_gcc_amd64_sse2.cc	2015-12-09 10:32:07.000000000 +0100
++++ lizardfs-v.3.9.4/external/crcutil-1.0/code/multiword_128_64_gcc_amd64_sse2.cc	2016-07-02 16:27:31.598148065 +0200
+@@ -26,7 +26,7 @@
+ #include "generic_crc.h"
+ #include "uint128_sse2.h"
+ 
+-#if defined(__GNUC__) && CRCUTIL_USE_ASM && HAVE_AMD64 && HAVE_SSE2
++#if defined(__GNUC__) && CRCUTIL_USE_ASM && HAVE_AMD64 && HAVE_SSE2 && !defined(__ILP32__)
+ 
+ namespace crcutil {
+ 
+Only in lizardfs-v.3.9.4/external/crcutil-1.0/code: multiword_128_64_gcc_amd64_sse2.cc~
+diff -ur lizardfs-v.3.9.4.orig/external/crcutil-1.0/code/multiword_64_64_gcc_amd64_asm.cc lizardfs-v.3.9.4/external/crcutil-1.0/code/multiword_64_64_gcc_amd64_asm.cc
+--- lizardfs-v.3.9.4.orig/external/crcutil-1.0/code/multiword_64_64_gcc_amd64_asm.cc	2015-12-09 10:32:07.000000000 +0100
++++ lizardfs-v.3.9.4/external/crcutil-1.0/code/multiword_64_64_gcc_amd64_asm.cc	2016-07-02 16:27:52.478420548 +0200
+@@ -42,7 +42,7 @@
+ 
+ #include "generic_crc.h"
+ 
+-#if defined(__GNUC__) && CRCUTIL_USE_ASM && HAVE_AMD64
++#if defined(__GNUC__) && CRCUTIL_USE_ASM && HAVE_AMD64 && !defined(__ILP32__)
+ 
+ namespace crcutil {
+ 
+Only in lizardfs-v.3.9.4/external/crcutil-1.0/code: multiword_64_64_gcc_amd64_asm.cc~

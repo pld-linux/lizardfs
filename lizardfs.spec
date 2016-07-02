@@ -10,7 +10,7 @@ Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
 Version:	3.9.4
-Release:	1
+Release:	2
 License:	GPL v3
 Group:		Applications
 Source0:	https://github.com/lizardfs/lizardfs/archive/v.%{version}.tar.gz
@@ -20,6 +20,7 @@ Source1:	%{name}-master.service
 Source2:	%{name}-chunkserver.service
 %endif
 Patch0:		%{name}-cmake_fix.patch
+Patch1:		x32.patch
 URL:		https://github.com/lizardfs/lizardfs
 BuildRequires:	/usr/bin/a2x
 BuildRequires:	asciidoc
@@ -35,8 +36,6 @@ BuildRequires:	rpmbuild(macros) >= 1.647
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	systemd-units >= 0.38
 %endif
-ExclusiveArch:	%{ix86} %{x8664}
-# Requires:
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
 Requires(pre):	/bin/id
@@ -114,11 +113,12 @@ CGI server
 %prep
 %setup -q -n %{name}-v.%{version}
 %patch0 -p1
+%patch1 -p1
 
 %build
 install -d build
 cd build
-%cmake 	../   \
+%cmake ../   \
 	  -DBUILD_SHARED_LIBS=FALSE \
 	  -DCMAKE_INSTALL_PREFIX:PATH=/  \
 	  -DENABLE_DEBIAN_PATHS=TRUE
