@@ -8,7 +8,7 @@ Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
 Version:	3.9.4
-Release:	2
+Release:	3
 License:	GPL v3
 Group:		Applications
 Source0:	https://github.com/lizardfs/lizardfs/archive/v.%{version}.tar.gz
@@ -113,6 +113,16 @@ cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-chunkserver.service
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+# NOTE: Using same user/group (mfs) as for MooseFS from mfs.spec
+%groupadd -g 282 mfs
+%useradd -u 282 -d /var/lib/%{name} -g mfs -c "MooseFS/LizardFS Daemon" mfs
+
+%postun
+if [ "$1" = "0" ]; then
+	%userremove mfs
+	%groupremove mfs
+fi
+
 %post master
 %systemd_post %{name}-master.service
 
@@ -130,12 +140,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %postun chunkserver
 %systemd_reload
-
-%postun
-if [ "$1" = "0" ]; then
-	%userremove mfs
-	%groupremove mfs
-fi
 
 %files
 %defattr(644,root,root,755)
