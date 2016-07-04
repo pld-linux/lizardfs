@@ -1,6 +1,4 @@
 # TODO:
-# - Fix x32 asm code inside crcutil-1.0
-# - Consider using external libcrcutil package
 # - systemd service files to metalogger, cgiserver packages
 # - Fix cgiserver
 
@@ -22,6 +20,7 @@ BuildRequires:	/usr/bin/a2x
 BuildRequires:	asciidoc
 BuildRequires:	boost-devel
 BuildRequires:	cmake >= 3.4.0
+BuildRequires:	crcutil-devel >= 1.0
 BuildRequires:	docbook-dtd45-xml
 BuildRequires:	libfuse-devel
 BuildRequires:	pkgconfig
@@ -85,6 +84,8 @@ CGI server
 %setup -q -n %{name}-v.%{version}
 %patch0 -p1
 %patch1 -p1
+
+%{__rm} -r external/crcutil-1.0
 
 %build
 install -d build
