@@ -113,6 +113,7 @@ cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-chunkserver.service
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%pre
 # NOTE: Using same user/group (mfs) as for MooseFS from mfs.spec
 %groupadd -g 282 mfs
 %useradd -u 282 -d /var/lib/%{name} -g mfs -c "MooseFS/LizardFS Daemon" mfs
