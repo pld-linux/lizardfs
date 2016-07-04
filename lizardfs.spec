@@ -15,10 +15,8 @@ License:	GPL v3
 Group:		Applications
 Source0:	https://github.com/lizardfs/lizardfs/archive/v.%{version}.tar.gz
 # Source0-md5:	71766d18a5066506e54d952ab6056bd3
-%if %{with systemd_service}
 Source1:	%{name}-master.service
 Source2:	%{name}-chunkserver.service
-%endif
 Patch0:		%{name}-cmake_fix.patch
 Patch1:		x32.patch
 URL:		https://github.com/lizardfs/lizardfs
@@ -132,7 +130,7 @@ cd build
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}
 install -d $RPM_BUILD_ROOT/var/lib/%{name}
-cp $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
+cp -p $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/master
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/chunkserver
 mv $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT/var/lib/%{name}/master/metadata.mfs
