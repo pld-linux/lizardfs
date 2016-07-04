@@ -25,17 +25,16 @@ BuildRequires:	cmake >= 3.4.0
 BuildRequires:	docbook-dtd45-xml
 BuildRequires:	libfuse-devel
 BuildRequires:	pkgconfig
-BuildRequires:	rpmbuild(macros) >= 1.202
-BuildRequires:	zlib-devel
 BuildRequires:	rpmbuild(macros) >= 1.647
+BuildRequires:	zlib-devel
 Requires(post,preun,postun):	systemd-units >= 38
-Requires:	systemd-units >= 0.38
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
+Requires:	systemd-units >= 0.38
 Provides:	group(mfs)
 Provides:	user(mfs)
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
