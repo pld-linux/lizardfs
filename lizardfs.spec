@@ -4,8 +4,6 @@
 # - systemd service files to metalogger, cgiserver packages
 # - Fix cgiserver
 
-%bcond_without	systemd_service		
-
 Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
@@ -29,11 +27,9 @@ BuildRequires:	libfuse-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.202
 BuildRequires:	zlib-devel
-%if %{with systemd_service}
 BuildRequires:	rpmbuild(macros) >= 1.647
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	systemd-units >= 0.38
-%endif
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
 Requires(pre):	/bin/id
@@ -62,17 +58,6 @@ Requires:	%{name} = %{version}-%{release}
 %description master
 Master/shadow metadata server
 
-%if %{with systemd_service}
-%post master
-%systemd_post %{name}-master.service
-
-%preun master
-%systemd_preun %{name}-master.service
-
-%postun master
-%systemd_reload
-%endif
-
 %package chunkserver
 Summary:	Chunk server
 Group:		Applications
@@ -80,17 +65,6 @@ Requires:	%{name} = %{version}-%{release}
 
 %description chunkserver
 Chunk server
-
-%if %{with systemd_service}
-%post chunkserver
-%systemd_post %{name}-chunkserver.service
-
-%preun chunkserver
-%systemd_preun %{name}-chunkserver.service
-
-%postun chunkserver
-%systemd_reload
-%endif
 
 %package metalogger
 Summary:	Metalogger
@@ -124,25 +98,39 @@ cd build
 
 %install
 rm -rf $RPM_BUILD_ROOT
-cd build
-%{__make} install \
+%{__make} -C build install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}
+install -d $RPM_BUILD_ROOT{%{_sysconfdir},%{systemdunitdir}}
 install -d $RPM_BUILD_ROOT/var/lib/%{name}
 cp -p $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/master
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/chunkserver
 mv $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT/var/lib/%{name}/master/metadata.mfs
 
-%if %{with systemd_service}
-install -d $RPM_BUILD_ROOT%{systemdunitdir}
 cp -p %{SOURCE1} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-master.service
 cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-chunkserver.service
-%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%post master
+%systemd_post %{name}-master.service
+
+%preun master
+%systemd_preun %{name}-master.service
+
+%postun master
+%systemd_reload
+
+%post chunkserver
+%systemd_post %{name}-chunkserver.service
+
+%preun chunkserver
+%systemd_preun %{name}-chunkserver.service
+
+%postun chunkserver
+%systemd_reload
 
 %postun
 if [ "$1" = "0" ]; then
@@ -207,9 +195,7 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/metadata.mfs.empty
 %dir %attr(750,mfs,mfs) /var/lib/%{name}/master
 %config(noreplace) %verify(not md5 mtime size) /var/lib/%{name}/master/metadata.mfs
-%if %{with systemd_service}
 %{systemdunitdir}/%{name}-master.service
-%endif
 
 %files chunkserver
 %defattr(644,root,root,755)
@@ -217,9 +203,7 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfschunkserver.cfg.dist
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfshdd.cfg.dist
 %dir %attr(750,mfs,mfs) /var/lib/%{name}/chunkserver
-%if %{with systemd_service}
 %{systemdunitdir}/%{name}-chunkserver.service
-%endif
 
 %files metalogger
 %defattr(644,root,root,755)
