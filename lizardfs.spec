@@ -5,15 +5,14 @@
 Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
-Version:	3.9.4
-Release:	3
+Version:	3.10.4
+Release:	0.1
 License:	GPL v3
 Group:		Applications
-Source0:	https://github.com/lizardfs/lizardfs/archive/v.%{version}.tar.gz
-# Source0-md5:	71766d18a5066506e54d952ab6056bd3
+Source0:	https://github.com/lizardfs/lizardfs/archive/v%{version}.tar.gz
+# Source0-md5:	31ad7a500d76fee65c5897cc59418a7e
 Source1:	%{name}-master.service
 Source2:	%{name}-chunkserver.service
-Patch0:		%{name}-cmake_fix.patch
 Patch1:		x32.patch
 URL:		https://github.com/lizardfs/lizardfs
 BuildRequires:	/usr/bin/a2x
@@ -81,8 +80,7 @@ Requires:	%{name} = %{version}-%{release}
 CGI server
 
 %prep
-%setup -q -n %{name}-v.%{version}
-%patch0 -p1
+%setup -q
 %patch1 -p1
 
 %{__rm} -r external/crcutil-1.0
@@ -156,6 +154,7 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfstopology.cfg.dist
 %attr(755,root,root) %{_bindir}/lizardfs-admin
 %attr(755,root,root) %{_bindir}/lizardfs-probe
+%attr(755,root,root) %{_bindir}/lizardfs
 %attr(755,root,root) %{_bindir}/mfsappendchunks
 %attr(755,root,root) %{_bindir}/mfscheckfile
 %attr(755,root,root) %{_bindir}/mfsdeleattr
@@ -177,11 +176,13 @@ fi
 %attr(755,root,root) %{_bindir}/mfssetquota
 %attr(755,root,root) %{_bindir}/mfssettrashtime
 %attr(755,root,root) %{_bindir}/mfssnapshot
-%attr(755,root,root) %{_bindir}/mfstools
+%attr(755,root,root) %{_bindir}/mfstools.sh
 %attr(755,root,root) %{_sbindir}/mfsmetadump
 %attr(755,root,root) %{_sbindir}/mfsmetarestore
 %attr(755,root,root) %{_sbindir}/mfsrestoremaster
 %{_mandir}/man1/mfs*.1*
+%{_mandir}/man1/lizardfs-*.1*
+%{_mandir}/man1/lizardfs.1*
 %{_mandir}/man5/globaliolimits.cfg.5*
 %{_mandir}/man5/iolimits.cfg.5*
 %{_mandir}/man5/mfs*.cfg.5*
@@ -192,6 +193,8 @@ fi
 %{_mandir}/man8/lizardfs-cgiserver.8*
 %{_mandir}/man8/lizardfs-probe.8
 %{_mandir}/man8/mfs*.8*
+/etc/bash_completion.d/lizardfs
+
 
 %files master
 %defattr(644,root,root,755)
