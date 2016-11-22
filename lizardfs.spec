@@ -1,12 +1,13 @@
 # TODO:
 # - systemd service files to metalogger, cgiserver packages
 # - Fix cgiserver
+# - fix judy lib usage on x32 arch
 
 Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
 Version:	3.10.4
-Release:	0.1
+Release:	0.2
 License:	GPL v3
 Group:		Applications
 Source0:	https://github.com/lizardfs/lizardfs/archive/v%{version}.tar.gz
@@ -20,11 +21,19 @@ BuildRequires:	asciidoc
 BuildRequires:	boost-devel
 BuildRequires:	cmake >= 3.4.0
 BuildRequires:	crcutil-devel >= 1.0
+BuildRequires:	db5.3-devel
 BuildRequires:	docbook-dtd45-xml
+%ifarch x32
+BuildConflicts:	judy-devel
+%else
+BuildRequires:	judy-devel
+%endif
 BuildRequires:	libfuse-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	zlib-devel
+
+
 Requires(post,preun,postun):	systemd-units >= 38
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
