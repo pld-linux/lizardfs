@@ -6,12 +6,12 @@
 Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
-Version:	3.10.4
-Release:	1
+Version:	3.11.3
+Release:	0.1
 License:	GPL v3
 Group:		Applications
 Source0:	https://github.com/lizardfs/lizardfs/archive/v%{version}.tar.gz
-# Source0-md5:	31ad7a500d76fee65c5897cc59418a7e
+# Source0-md5:	0b3647e69503e5d3b37f07f1b07f4850
 Source1:	%{name}-master.service
 Source2:	%{name}-chunkserver.service
 Patch1:		x32.patch
