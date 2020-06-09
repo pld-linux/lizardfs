@@ -1,0 +1,11 @@
+--- lizardfs-3.12.0/src/common/slogger.cc~	2017-12-20 10:59:37.000000000 +0100
++++ lizardfs-3.12.0/src/common/slogger.cc	2020-06-09 22:20:57.067884728 +0200
+@@ -97,7 +97,7 @@
+ 
+ bool lzfs::add_log_stderr(log_level::LogLevel level) {
+ 	try {
+-		LoggerPtr logger = spdlog::stderr_color_mt("stderr");
++		LoggerPtr logger = spdlog::stderr_logger_mt("stderr", true);
+ 		logger->set_level((spdlog::level::level_enum)level);
+ 		// Format: DATE TIME [LEVEL] [PID:TID] : MESSAGE
+ 		logger->set_pattern("%D %H:%M:%S.%e [%l] [%P:%t] : %v");

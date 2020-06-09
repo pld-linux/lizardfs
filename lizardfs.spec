@@ -17,6 +17,7 @@ Source2:	%{name}-chunkserver.service
 Patch0:		system-spdlog.patch
 Patch1:		x32.patch
 Patch2:		0001-Add-missing-header.patch
+Patch3:		spdlog-1.patch
 URL:		https://github.com/lizardfs/lizardfs
 BuildRequires:	/usr/bin/a2x
 BuildRequires:	asciidoc
@@ -33,7 +34,7 @@ BuildRequires:	judy-devel
 BuildRequires:	libfuse-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.647
-BuildRequires:	spdlog-devel >= 0.14.0
+BuildRequires:	spdlog-devel >= 1.12-2
 BuildRequires:	zlib-devel
 Requires(post,preun,postun):	systemd-units >= 38
 Requires(postun):	/usr/sbin/groupdel
@@ -94,6 +95,7 @@ CGI server
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %{__rm} -r external/crcutil-1.0
 
