@@ -6,15 +6,17 @@
 Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
-Version:	3.11.3
-Release:	0.1
+Version:	3.12.0
+Release:	1
 License:	GPL v3
 Group:		Applications
-Source0:	https://github.com/lizardfs/lizardfs/archive/v%{version}.tar.gz
-# Source0-md5:	0b3647e69503e5d3b37f07f1b07f4850
+Source0:	https://github.com/lizardfs/lizardfs/archive/v%{version}/%{name}-%{version}.tar.gz
+# Source0-md5:	e584aa9534f900ca04d40a4772e01302
 Source1:	%{name}-master.service
 Source2:	%{name}-chunkserver.service
+Patch0:		system-spdlog.patch
 Patch1:		x32.patch
+Patch2:		0001-Add-missing-header.patch
 URL:		https://github.com/lizardfs/lizardfs
 BuildRequires:	/usr/bin/a2x
 BuildRequires:	asciidoc
@@ -31,9 +33,8 @@ BuildRequires:	judy-devel
 BuildRequires:	libfuse-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.647
+BuildRequires:	spdlog-devel >= 0.14.0
 BuildRequires:	zlib-devel
-
-
 Requires(post,preun,postun):	systemd-units >= 38
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
@@ -90,9 +91,22 @@ CGI server
 
 %prep
 %setup -q
+%patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %{__rm} -r external/crcutil-1.0
+
+
+%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+python2(\s|$),#!%{__python}\1,' \
+      src/cgi/chart.cgi.in \
+      src/cgi/lizardfs-cgiserver.py.in \
+      src/cgi/mfs.cgi.in \
+      src/cgi/cgiserv.py.in
+
+%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+bash(\s|$),#!/bin/bash\1,' \
+      src/master/mfsrestoremaster.in \
+      src/tools/mfstools.sh
 
 %build
 install -d build
@@ -152,7 +166,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc doc COPYING README UPGRADE NEWS INSTALL
+%doc doc COPYING README.md UPGRADE NEWS INSTALL
 %dir %{_sysconfdir}/mfs
 %dir %attr(750,root,root) /var/lib/%{name}
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/globaliolimits.cfg.dist
@@ -184,7 +198,6 @@ fi
 %attr(755,root,root) %{_bindir}/mfssetgoal
 %attr(755,root,root) %{_bindir}/mfssetquota
 %attr(755,root,root) %{_bindir}/mfssettrashtime
-%attr(755,root,root) %{_bindir}/mfssnapshot
 %attr(755,root,root) %{_bindir}/mfstools.sh
 %attr(755,root,root) %{_sbindir}/mfsmetadump
 %attr(755,root,root) %{_sbindir}/mfsmetarestore
