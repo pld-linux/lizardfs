@@ -17,7 +17,7 @@ Source2:	%{name}-chunkserver.service
 Patch0:		system-spdlog.patch
 Patch1:		x32.patch
 Patch2:		0001-Add-missing-header.patch
-Patch3:		spdlog-1.patch
+Patch3:		spdlog.patch
 URL:		https://github.com/lizardfs/lizardfs
 BuildRequires:	/usr/bin/a2x
 BuildRequires:	asciidoc

@@ -1,0 +1,68 @@
+diff --color -ur lizardfs-3.12.0.orig/cmake/Libraries.cmake lizardfs-3.12.0/cmake/Libraries.cmake
+--- lizardfs-3.12.0.orig/cmake/Libraries.cmake	2020-11-02 10:38:47.225851923 +0100
++++ lizardfs-3.12.0/cmake/Libraries.cmake	2020-11-02 00:20:25.942367760 +0100
+@@ -3,6 +3,7 @@
+ # Find standard libraries
+ find_package(Socket REQUIRED)
+ find_package(Threads REQUIRED)
++find_package(spdlog REQUIRED)
+ 
+ if(NOT MINGW)
+   find_package(FUSE REQUIRED)
+Only in lizardfs-3.12.0.orig/external: spdlog-1.patch
+diff --color -ur lizardfs-3.12.0.orig/src/common/CMakeLists.txt lizardfs-3.12.0/src/common/CMakeLists.txt
+--- lizardfs-3.12.0.orig/src/common/CMakeLists.txt	2017-12-20 10:59:37.000000000 +0100
++++ lizardfs-3.12.0/src/common/CMakeLists.txt	2020-11-02 00:39:44.764135292 +0100
+@@ -16,6 +16,7 @@
+ 
+ 
+ shared_add_library(mfscommon ${COMMON_SOURCES})
++shared_target_link_libraries(mfscommon spdlog::spdlog)
+ if (HAVE_CRCUTIL)
+   # Use crcutil Library
+   include_directories(${CRCUTIL_INCLUDE_DIRS})
+diff --color -ur lizardfs-3.12.0.orig/src/common/slogger.cc lizardfs-3.12.0/src/common/slogger.cc
+--- lizardfs-3.12.0.orig/src/common/slogger.cc	2017-12-20 10:59:37.000000000 +0100
++++ lizardfs-3.12.0/src/common/slogger.cc	2020-11-02 01:00:00.514731900 +0100
+@@ -86,7 +86,7 @@
+ bool lzfs::add_log_syslog() {
+ #ifndef _WIN32
+ 	try {
+-		spdlog::syslog_logger("syslog");
++		spdlog::syslog_logger_mt("syslog");
+ 		return true;
+ 	} catch (const spdlog::spdlog_ex &e) {
+ 		lzfs_pretty_syslog(LOG_ERR, "Adding syslog log failed: %s", e.what());
+@@ -97,7 +97,7 @@
+ 
+ bool lzfs::add_log_stderr(log_level::LogLevel level) {
+ 	try {
+-		LoggerPtr logger = spdlog::stderr_color_mt("stderr");
++		LoggerPtr logger = spdlog::stderr_color_mt("stderr", spdlog::color_mode::automatic);
+ 		logger->set_level((spdlog::level::level_enum)level);
+ 		// Format: DATE TIME [LEVEL] [PID:TID] : MESSAGE
+ 		logger->set_pattern("%D %H:%M:%S.%e [%l] [%P:%t] : %v");
+diff --color -ur lizardfs-3.12.0.orig/src/common/slogger.h lizardfs-3.12.0/src/common/slogger.h
+--- lizardfs-3.12.0.orig/src/common/slogger.h	2020-11-02 10:38:47.225851923 +0100
++++ lizardfs-3.12.0/src/common/slogger.h	2020-11-02 00:55:45.381041431 +0100
+@@ -30,6 +30,9 @@
+ #define SPDLOG_DISABLE_TID_CACHING
+ #endif
+ #include "spdlog/spdlog.h"
++#include "spdlog/sinks/rotating_file_sink.h"
++#include "spdlog/sinks/syslog_sink.h"
++#include "spdlog/sinks/stdout_color_sinks.h"
+ 
+ typedef std::shared_ptr<spdlog::logger> LoggerPtr;
+ 
+diff --color -ur lizardfs-3.12.0.orig/src/protocol/CMakeLists.txt lizardfs-3.12.0/src/protocol/CMakeLists.txt
+--- lizardfs-3.12.0.orig/src/protocol/CMakeLists.txt	2017-12-20 10:59:37.000000000 +0100
++++ lizardfs-3.12.0/src/protocol/CMakeLists.txt	2020-11-02 00:44:04.829051294 +0100
+@@ -19,6 +19,7 @@
+ collect_sources(PROTOCOL)
+ 
+ add_library(lzfsprotocol ${PROTOCOL_SOURCES})
++target_link_libraries(lzfsprotocol mfscommon)
+ 
+ create_unittest(lzfsprotocol ${PROTOCOL_TESTS})
+ link_unittest(lzfsprotocol mfscommon)
