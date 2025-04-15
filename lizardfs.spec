@@ -9,7 +9,7 @@ Name:		lizardfs
 Version:	3.12.0
 Release:	1
 License:	GPL v3
-Group:		Applications
+Group:		Applications/File
 Source0:	https://github.com/lizardfs/lizardfs/archive/v%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	e584aa9534f900ca04d40a4772e01302
 Source1:	%{name}-master.service
@@ -64,35 +64,51 @@ użytkownikowi końcowemu widok pojedynczego systemu plików.
 
 %package master
 Summary:	Master/shadow metadata server
-Group:		Applications
+Summary(pl.UTF-8):	Główny i zapasowy serwer metadanych
+Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description master
-Master/shadow metadata server
+Master/shadow metadata server.
+
+%description master -l pl.UTF-8
+Główny i zapasowy serwer metadanych.
 
 %package chunkserver
 Summary:	Chunk server
-Group:		Applications
+Summary(pl.UTF-8):	Serwer porcji danych
+Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description chunkserver
-Chunk server
+Chunk server.
+
+%description chunkserver -l pl.UTF-8
+Serwer porcji danych.
 
 %package metalogger
-Summary:	Metalogger
-Group:		Applications
+Summary:	Metalogger server
+Summary(pl.UTF-8):	Serwer logujący zmiany metadanych
+Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description metalogger
-Metalogger
+Metalogger server.
+
+%description metalogger -l pl.UTF-8
+Serwer logujący zmiany metadanych.
 
 %package cgiserver
 Summary:	CGI server
-Group:		Applications
+Summary(pl.UTF-8):	Serwer CGI
+Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description cgiserver
-CGI server
+CGI server.
+
+%description cgiserver -l pl.UTF-8
+Serwer CGI.
 
 %prep
 %setup -q
@@ -103,16 +119,15 @@ CGI server
 
 %{__rm} -r external/crcutil-1.0
 
-
 %{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+python2(\s|$),#!%{__python}\1,' \
-      src/cgi/chart.cgi.in \
-      src/cgi/lizardfs-cgiserver.py.in \
-      src/cgi/mfs.cgi.in \
-      src/cgi/cgiserv.py.in
+	src/cgi/chart.cgi.in \
+	src/cgi/lizardfs-cgiserver.py.in \
+	src/cgi/mfs.cgi.in \
+	src/cgi/cgiserv.py.in
 
 %{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+bash(\s|$),#!/bin/bash\1,' \
-      src/master/mfsrestoremaster.in \
-      src/tools/mfstools.sh
+	src/master/mfsrestoremaster.in \
+	src/tools/mfstools.sh
 
 %build
 install -d build
@@ -125,15 +140,16 @@ cd build
 
 %install
 rm -rf $RPM_BUILD_ROOT
+
 %{__make} -C build install \
 	DESTDIR=$RPM_BUILD_ROOT
 
 install -d $RPM_BUILD_ROOT{%{_sysconfdir},%{systemdunitdir}}
 install -d $RPM_BUILD_ROOT/var/lib/%{name}
-cp -p $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT%{_sysconfdir}/mfs/
+cp -p $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT%{_sysconfdir}/mfs
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/master
 install -d $RPM_BUILD_ROOT/var/lib/%{name}/chunkserver
-mv $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT/var/lib/%{name}/master/metadata.mfs
+%{__mv} $RPM_BUILD_ROOT/var/lib/mfs/metadata.mfs.empty $RPM_BUILD_ROOT/var/lib/%{name}/master/metadata.mfs
 
 cp -p %{SOURCE1} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-master.service
 cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}-chunkserver.service
@@ -223,7 +239,6 @@ fi
 %{_mandir}/man8/mfs*.8*
 /etc/bash_completion.d/lizardfs
 
-
 %files master
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/mfsmaster
@@ -251,4 +266,4 @@ fi
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/lizardfs-cgiserver
 %attr(755,root,root) %{_sbindir}/mfscgiserv
-%{_datadir}/mfscgi/
+%{_datadir}/mfscgi
