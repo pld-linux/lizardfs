@@ -21,10 +21,10 @@ Patch3:		spdlog.patch
 URL:		https://github.com/lizardfs/lizardfs
 BuildRequires:	/usr/bin/a2x
 BuildRequires:	asciidoc
-BuildRequires:	boost-devel
+BuildRequires:	boost-devel >= 1.48.0
 BuildRequires:	cmake >= 3.4.0
 BuildRequires:	crcutil-devel >= 1.0
-BuildRequires:	db5.3-devel
+BuildRequires:	db-devel >= 5.2
 BuildRequires:	docbook-dtd45-xml
 %ifarch x32
 BuildConflicts:	judy-devel
@@ -32,9 +32,13 @@ BuildConflicts:	judy-devel
 BuildRequires:	judy-devel
 %endif
 BuildRequires:	libfuse-devel
+BuildRequires:	libisal-devel
+BuildRequires:	pam-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	spdlog-devel >= 1.12-2
+BuildRequires:	systemd-devel
+BuildRequires:	thrift-devel
 BuildRequires:	zlib-devel
 Requires(post,preun,postun):	systemd-units >= 38
 Requires(postun):	/usr/sbin/groupdel
