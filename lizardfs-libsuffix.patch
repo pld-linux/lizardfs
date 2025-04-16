@@ -1,0 +1,11 @@
+--- lizardfs-3.12.0/CMakeLists.txt.orig	2025-04-16 06:15:16.577367613 +0200
++++ lizardfs-3.12.0/CMakeLists.txt	2025-04-16 06:21:42.358995990 +0200
+@@ -181,7 +181,7 @@ if(ENABLE_DEBIAN_PATHS)
+   endif()
+   set(BIN_SUBDIR   "usr/bin")
+   set(SBIN_SUBDIR  "usr/sbin")
+-  set(LIB_SUBDIR   "usr/lib${LIBSUFFIX}")
++  set(LIB_SUBDIR   "usr/lib${LIB_SUFFIX}")
+   set(ETC_SUBDIR   "etc/mfs")
+   set(RUN_SUBDIR   "var/run/mfs")
+   set(DATA_SUBDIR  "var/lib/mfs")

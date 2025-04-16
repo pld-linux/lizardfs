@@ -1,0 +1,40 @@
+--- lizardfs-3.12.0/src/mount/polonaise/main.cc.orig	2017-12-20 10:59:37.000000000 +0100
++++ lizardfs-3.12.0/src/mount/polonaise/main.cc	2025-04-16 06:23:29.964431143 +0200
+@@ -22,7 +22,6 @@
+ #include <signal.h>
+ #include <stdio.h>
+ #include <iostream>
+-#include <boost/make_shared.hpp>
+ #include <polonaise/polonaise_constants.h>
+ #include <polonaise/Polonaise.h>
+ #include <thrift/protocol/TBinaryProtocol.h>
+@@ -948,9 +947,9 @@ public:
+ 	static const uint32_t kReadBufferSize = 512 * 1024;
+ 	static const uint32_t kWriteBufferSize = 4096;
+ 
+-	virtual boost::shared_ptr<apache::thrift::transport::TTransport> getTransport(
+-			boost::shared_ptr<apache::thrift::transport::TTransport> transport) {
+-		return boost::make_shared<apache::thrift::transport::TBufferedTransport>(
++	virtual std::shared_ptr<apache::thrift::transport::TTransport> getTransport(
++			std::shared_ptr<apache::thrift::transport::TTransport> transport) {
++		return std::make_shared<apache::thrift::transport::TBufferedTransport>(
+ 				transport, kReadBufferSize, kWriteBufferSize);
+ 	}
+ };
+@@ -1075,11 +1074,11 @@ int main (int argc, char **argv) {
+ 	using namespace ::apache::thrift;
+ 	using namespace ::apache::thrift::transport;
+ 	using namespace ::apache::thrift::server;
+-	boost::shared_ptr<PolonaiseHandler> handler(new PolonaiseHandler());
+-	boost::shared_ptr<TProcessor> processor(new PolonaiseProcessor(handler));
+-	boost::shared_ptr<TTransportFactory> transportFactory(new BigBufferedTransportFactory());
+-	boost::shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
+-	boost::shared_ptr<TServerTransport> serverTransport;
++	std::shared_ptr<PolonaiseHandler> handler(new PolonaiseHandler());
++	std::shared_ptr<TProcessor> processor(new PolonaiseProcessor(handler));
++	std::shared_ptr<TTransportFactory> transportFactory(new BigBufferedTransportFactory());
++	std::shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
++	std::shared_ptr<TServerTransport> serverTransport;
+ 
+ #ifdef _WIN32
+ 	if (gSetup.bind_port > 0) {

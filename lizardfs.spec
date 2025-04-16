@@ -18,6 +18,8 @@ Patch0:		system-spdlog.patch
 Patch1:		x32.patch
 Patch2:		0001-Add-missing-header.patch
 Patch3:		spdlog.patch
+Patch4:		%{name}-thrift-c++11.patch
+Patch5:		%{name}-libsuffix.patch
 URL:		https://github.com/lizardfs/lizardfs
 BuildRequires:	/usr/bin/a2x
 BuildRequires:	asciidoc
@@ -35,6 +37,7 @@ BuildRequires:	libfuse-devel
 BuildRequires:	libisal-devel
 BuildRequires:	pam-devel
 BuildRequires:	pkgconfig
+BuildRequires:	polonaise-devel
 BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	spdlog-devel >= 1.12-2
 BuildRequires:	systemd-devel
@@ -62,53 +65,88 @@ LizardFS is jest niezawodnym, skalowalnym i efektywnym rozproszonym
 systemem plików. Rozkłada dane na rózne fizyczne serwery, dająć
 użytkownikowi końcowemu widok pojedynczego systemu plików.
 
+%package libs
+Summary:	LizardFS client libraries
+Summary(pl.UTF-8):	Biblioteki klienta LizardFS
+Group:		Libraries
+
+%description libs
+LizardFS client libraries.
+
+%description libs -l pl.UTF-8
+Biblioteki klienta LizardFS.
+
+%package devel
+Summary:	Header files for LizardFS client libraries
+Summary(pl.UTF-8):	Pliki nagłówkowe bibliotek klienta LizardFS
+Group:		Development/Libraries
+Requires:	%{name}-libs = %{version}-%{release}
+
+%description devel
+Header files for LizardFS client libraries.
+
+%description devel -l pl.UTF-8
+Pliki nagłówkowe bibliotek klienta LizardFS.
+
+%package static
+Summary:	Static LizardFS client libraries
+Summary(pl.UTF-8):	Statyczne biblioteki klienta LizardFS
+Group:		Development/Libraries
+Requires:	%{name}-devel = %{version}-%{release}
+
+%description static
+Static LizardFS client libraries.
+
+%description static -l pl.UTF-8
+Statyczne biblioteki klienta LizardFS.
+
 %package master
-Summary:	Master/shadow metadata server
-Summary(pl.UTF-8):	Główny i zapasowy serwer metadanych
+Summary:	LizardFS master/shadow metadata server
+Summary(pl.UTF-8):	Główny i zapasowy serwer metadanych LizardFS
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description master
-Master/shadow metadata server.
+LizardFS master/shadow metadata server.
 
 %description master -l pl.UTF-8
-Główny i zapasowy serwer metadanych.
+Główny i zapasowy serwer metadanych LizardFS.
 
 %package chunkserver
-Summary:	Chunk server
-Summary(pl.UTF-8):	Serwer porcji danych
+Summary:	LizardFS chunk server
+Summary(pl.UTF-8):	Serwer porcji danych LizardFS
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description chunkserver
-Chunk server.
+LizardFS chunk server.
 
 %description chunkserver -l pl.UTF-8
-Serwer porcji danych.
+Serwer porcji danych LizardFS.
 
 %package metalogger
-Summary:	Metalogger server
-Summary(pl.UTF-8):	Serwer logujący zmiany metadanych
+Summary:	LizardFS metalogger server
+Summary(pl.UTF-8):	Serwer logujący zmiany metadanych LizardFS
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description metalogger
-Metalogger server.
+LizardFS metalogger server.
 
 %description metalogger -l pl.UTF-8
-Serwer logujący zmiany metadanych.
+Serwer logujący zmiany metadanych LizardFS.
 
 %package cgiserver
-Summary:	CGI server
-Summary(pl.UTF-8):	Serwer CGI
+Summary:	LizardFS CGI server
+Summary(pl.UTF-8):	Serwer CGI LizardFS
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description cgiserver
-CGI server.
+LizardFS CGI server.
 
 %description cgiserver -l pl.UTF-8
-Serwer CGI.
+Serwer CGI LizardFS.
 
 %prep
 %setup -q
@@ -116,6 +154,8 @@ Serwer CGI.
 %patch -P1 -p1
 %patch -P2 -p1
 %patch -P3 -p1
+%patch -P4 -p1
+%patch -P5 -p1
 
 %{__rm} -r external/crcutil-1.0
 
@@ -132,10 +172,11 @@ Serwer CGI.
 %build
 install -d build
 cd build
-%cmake ../   \
-	  -DBUILD_SHARED_LIBS=FALSE \
-	  -DCMAKE_INSTALL_PREFIX:PATH=/  \
-	  -DENABLE_DEBIAN_PATHS=TRUE
+%cmake .. \
+	-DBUILD_SHARED_LIBS=OFF \
+	-DCMAKE_INSTALL_PREFIX:PATH=/  \
+	-DENABLE_CLIENT_LIB=ON \
+	-DENABLE_DEBIAN_PATHS=ON
 %{__make}
 
 %install
@@ -168,6 +209,9 @@ if [ "$1" = "0" ]; then
 	%groupremove mfs
 fi
 
+%post	libs -p /sbin/ldconfig
+%postun	libs -p /sbin/ldconfig
+
 %post master
 %systemd_post %{name}-master.service
 
@@ -197,9 +241,10 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfsgoals.cfg.dist
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfsmount.cfg.dist
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mfs/mfstopology.cfg.dist
-%attr(755,root,root) %{_bindir}/lizardfs-admin
-%attr(755,root,root) %{_bindir}/lizardfs-probe
 %attr(755,root,root) %{_bindir}/lizardfs
+%attr(755,root,root) %{_bindir}/lizardfs-admin
+%attr(755,root,root) %{_bindir}/lizardfs-polonaise-server
+%attr(755,root,root) %{_bindir}/lizardfs-probe
 %attr(755,root,root) %{_bindir}/mfsappendchunks
 %attr(755,root,root) %{_bindir}/mfscheckfile
 %attr(755,root,root) %{_bindir}/mfsdeleattr
@@ -238,6 +283,22 @@ fi
 %{_mandir}/man8/lizardfs-probe.8
 %{_mandir}/man8/mfs*.8*
 /etc/bash_completion.d/lizardfs
+
+%files libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/liblizardfs-client.so
+%attr(755,root,root) %{_libdir}/liblizardfsmount_shared.so
+
+%files devel
+%defattr(644,root,root,755)
+%{_includedir}/lizardfs
+%{_libdir}/liblizardfs-client-cpp_pic.a
+
+%files static
+%defattr(644,root,root,755)
+%{_libdir}/liblizardfs-client.a
+%{_libdir}/liblizardfs-client_pic.a
+%{_libdir}/liblizardfs-client-cpp.a
 
 %files master
 %defattr(644,root,root,755)
