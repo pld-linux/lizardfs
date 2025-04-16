@@ -7,7 +7,7 @@ Summary:	Open Source Distributed File System
 Summary(pl.UTF-8):	Rozporoszony system plików Open Source
 Name:		lizardfs
 Version:	3.12.0
-Release:	1
+Release:	2
 License:	GPL v3
 Group:		Applications/File
 Source0:	https://github.com/lizardfs/lizardfs/archive/v%{version}/%{name}-%{version}.tar.gz
@@ -20,6 +20,7 @@ Patch2:		0001-Add-missing-header.patch
 Patch3:		spdlog.patch
 Patch4:		%{name}-thrift-c++11.patch
 Patch5:		%{name}-libsuffix.patch
+Patch6:		%{name}-includes.patch
 URL:		https://github.com/lizardfs/lizardfs
 BuildRequires:	/usr/bin/a2x
 BuildRequires:	asciidoc
@@ -156,6 +157,7 @@ Serwer CGI LizardFS.
 %patch -P3 -p1
 %patch -P4 -p1
 %patch -P5 -p1
+%patch -P6 -p1
 
 %{__rm} -r external/crcutil-1.0
 
