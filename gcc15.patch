@@ -1,0 +1,20 @@
+--- lizardfs-3.12.0/src/common/compact_vector.h~	2017-12-20 09:59:37.000000000 +0000
++++ lizardfs-3.12.0/src/common/compact_vector.h	2025-10-22 12:09:46.596272476 +0000
+@@ -24,6 +24,7 @@
+ #include <cassert>
+ #include <iterator>
+ #include <limits>
++#include <cstdint>
+ #include <memory>
+ #include <stdexcept>
+ #include <type_traits>
+--- lizardfs-3.12.0/src/common/small_vector.h~	2017-12-20 09:59:37.000000000 +0000
++++ lizardfs-3.12.0/src/common/small_vector.h	2025-10-22 12:17:32.397792243 +0000
+@@ -27,6 +27,7 @@
+ #include <memory>
+ #include <type_traits>
+ #include <vector>
++#include <cstdint>
+ 
+ namespace detail {
+ 
